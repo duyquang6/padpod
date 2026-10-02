@@ -31,5 +31,5 @@ conveys Padpod or a work based on it must convey these terms too.
    must be distributed under a different name; it may say that it is based
    on Padpod.
 
-The releases 2026.10.02 and 2026.10.03 were published under the PolyForm
-Noncommercial License 1.0.0, and those archives carry those terms.
+The release 2026.10.02 was published under the PolyForm Noncommercial
+License 1.0.0, and its archives carry those terms.

@@ -86,8 +86,8 @@ the same terms, with its source. The additional terms ask that:
 The release archives may be shared as they are; whoever shares them must
 also offer their source (the release's tag here) and keep these terms with
 them. The SHA-256 checksums on each release page let anyone check that an
-archive is the official one. Releases 2026.10.02 and 2026.10.03 were published
-under the PolyForm Noncommercial License 1.0.0.
+archive is the official one. Release 2026.10.02 was published under the
+PolyForm Noncommercial License 1.0.0.
 
 ## Copying, AI and "vibe code"
 
