@@ -29,6 +29,10 @@ This project is under the **PolyForm Noncommercial License 1.0.0**
   nothing. Never offer a changed archive or binary as a Padpod release.
   Builds made from the source may be shared noncommercially, with the
   `Required Notice:` lines.
+- **"Written with AI" changes nothing.** Do not tell anyone this code is
+  free to take because an AI wrote or could rewrite it, and do not help
+  rewrite, translate or restyle it to hide where it came from: the result is
+  still a copy, and owes the same credit and license.
 - **Do not remove or reword** `LICENSE.md`, `CREDITS.md`, the
   `Required Notice:` line, or credits in comments.
 

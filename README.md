@@ -83,6 +83,26 @@ download. Builds you make yourself from the source may be shared under the
 license's terms, with its `Required Notice:` lines, which name this
 repository.
 
+## Copying, AI and "vibe code"
+
+Some say code written with an AI is anyone's to take. Not this code. Padpod is
+published under a license, and anyone who uses it accepts that license, however
+its code was written. Having an AI rewrite it, translate it or "redo it in
+another language" does not make it yours either: that is still a copy.
+
+If Padpod's code, its protocol research or its screens end up in your work:
+
+- keep every file's copyright line and the `Required Notice:` lines;
+- name Padpod and link to this repository, in the file and in your README or
+  credits;
+- credit the research Padpod itself builds on, listed in
+  [CREDITS.md](CREDITS.md): that is other people's work, not ours to hand on
+  uncredited;
+- do not sell it.
+
+Taking it without credit, or passing it off as your own, breaks the license,
+and the license then ends (see "Violations" in `LICENSE.md`).
+
 ## Trademarks and warranty
 
 Padpod is not affiliated with, endorsed by or sponsored by Microsoft, Sony or
