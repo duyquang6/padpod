@@ -53,9 +53,6 @@ const QUIT_HOLD: Duration = Duration::from_secs(2);
 const DIM_AFTER: Duration = Duration::from_secs(20);
 /// The same with the battery saver on.
 const SAVER_DIM_AFTER: Duration = Duration::from_secs(8);
-/// With Screen off, how long "Connected to ..." stays up before the screen
-/// goes dark: long enough to see which host it was.
-const DARK_AFTER: Duration = Duration::from_secs(3);
 /// Between attempts to reach the host we were last paired with.
 const RECONNECT_EVERY: Duration = Duration::from_secs(4);
 /// How long after starting or losing the link to keep at that pace...
@@ -178,17 +175,6 @@ fn save_saver(on: bool) {
     let _ = std::fs::write(data_dir().join("battery"), if on { "on" } else { "off" });
 }
 
-/// Screen off: while a host is connected the panel stays dark, presses and
-/// all - the game is on the other screen - and the CPU slows down with it.
-fn dark_on() -> bool {
-    std::fs::read_to_string(data_dir().join("screen")).is_ok_and(|s| s.trim() == "off")
-}
-
-fn save_dark(on: bool) {
-    let _ = std::fs::create_dir_all(data_dir());
-    let _ = std::fs::write(data_dir().join("screen"), if on { "off" } else { "on" });
-}
-
 /// The last host, per mode: a host caches what the controller said it was
 /// when they paired, so reconnecting a mode to a host paired in the other one
 /// would hand it reports it reads wrongly.
@@ -280,10 +266,7 @@ mod backlight {
         /// than to its faintest glow, and drops the CPU to spruce's
         /// powersave profile while it stays dark - the battery saver.
         pub fn dim(&mut self, on: bool, off: bool) {
-            let dark = on && off;
-            // Dimmed can still go dark, when Screen off takes over from the
-            // idle timer.
-            if on == self.dimmed && dark == self.cpu_low {
+            if on == self.dimmed {
                 return;
             }
             if let Some(raw) = self.original {
@@ -294,10 +277,12 @@ mod backlight {
                 });
                 self.dimmed = on;
             }
-            if dark != self.cpu_low {
-                cpu(if dark { "set_powersave" } else { "set_smart" });
+            match (on, off) {
+                (true, true) => cpu("set_powersave"),
+                (false, _) if self.cpu_low => cpu("set_smart"),
+                _ => {}
             }
-            self.cpu_low = dark;
+            self.cpu_low = on && off;
         }
 
         pub fn is_dimmed(&self) -> bool {
@@ -544,19 +529,16 @@ fn frame(status: Status, state: hid::State, quitting: bool) -> Frame {
 }
 
 /// The menu SELECT opens while nothing is connected: the three modes, then
-/// the battery saver and Screen off. While a host is connected SELECT is that
-/// host's button.
+/// the battery saver. While a host is connected SELECT is that host's button.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 struct Menu {
     cursor: usize,
     current: Mode,
     saver: bool,
-    dark: bool,
 }
 
-/// Rows: the modes, then the saver, then Screen off.
-const MENU_ROWS: usize = Mode::ALL.len() + 2;
-const SAVER_ROW: usize = Mode::ALL.len();
+/// Rows: the modes, then the saver.
+const MENU_ROWS: usize = Mode::ALL.len() + 1;
 
 /// What a press does to the open menu.
 #[derive(Debug, PartialEq, Eq)]
@@ -565,7 +547,6 @@ enum MenuAction {
     Close,
     Switch(Mode),
     ToggleSaver,
-    ToggleDark,
 }
 
 /// Presses are edges: `was` is the state before this frame.
@@ -582,8 +563,7 @@ fn menu_press(menu: &mut Menu, was: &hid::State, now: &hid::State) -> MenuAction
         return match Mode::ALL.get(menu.cursor) {
             Some(&m) if m == menu.current => MenuAction::Close,
             Some(&m) => MenuAction::Switch(m),
-            None if menu.cursor == SAVER_ROW => MenuAction::ToggleSaver,
-            None => MenuAction::ToggleDark,
+            None => MenuAction::ToggleSaver,
         };
     } else if pressed(button::SOUTH) || pressed(button::SELECT) {
         return MenuAction::Close;
@@ -645,8 +625,6 @@ fn session(
     let mut previous = pad.mapper.state;
     let mut menu: Option<Menu> = None;
     let mut saver = saver_on();
-    let mut dark = dark_on();
-    let mut connected_at = Instant::now();
     let mut drawn: Option<(String, hid::State, bool)> = None;
     let mut names: std::collections::HashMap<Addr, String> = Default::default();
 
@@ -714,7 +692,6 @@ fn session(
             eprintln!("link: connected to {} ({}) as {}", l.name, l.host, mode.label());
             sent = None;
             changed_at = Instant::now();
-            connected_at = Instant::now();
         }
 
         // The host's side of the conversation.
@@ -873,15 +850,10 @@ fn session(
                     save_saver(saver);
                     open.saver = saver;
                 }
-                MenuAction::ToggleDark => {
-                    dark = !dark;
-                    save_dark(dark);
-                    open.dark = dark;
-                }
             }
         } else if now.pressed(hid::button::SELECT) && !previous.pressed(hid::button::SELECT) {
             let cursor = Mode::ALL.iter().position(|&m| m == mode).unwrap_or(0);
-            menu = Some(Menu { cursor, current: mode, saver, dark });
+            menu = Some(Menu { cursor, current: mode, saver });
         }
         previous = now;
 
@@ -895,11 +867,8 @@ fn session(
             }
         };
         let dim_after = if saver { SAVER_DIM_AFTER } else { DIM_AFTER };
-        // Screen off ignores presses; only holding MENU, to read how long
-        // is left before quitting, brings the screen back.
-        let blackout = dark && link.is_some() && connected_at.elapsed() >= DARK_AFTER && home_since.is_none();
-        let should_dim = blackout || (link.is_some() && changed_at.elapsed() >= dim_after);
-        light.dim(should_dim, saver || blackout);
+        let should_dim = link.is_some() && changed_at.elapsed() >= dim_after;
+        light.dim(should_dim, saver);
         if !light.is_dimmed() {
             let key = (format!("{} {menu:?} {saver}", status_key(&status)), pad.mapper.state, home_since.is_some());
             if drawn.as_ref() != Some(&key) {
@@ -1299,9 +1268,7 @@ fn draw(canvas: &mut Canvas, fonts: &mut Fonts, status: &Status, state: &hid::St
             (format!("{} · waiting", mode.label()), WARN, text)
         }
         Status::Connected { name, mode } => {
-            let screen = if dark_on() {
-                "Screen off: the screen goes dark in a moment and stays dark while you play."
-            } else if saver_on() {
+            let screen = if saver_on() {
                 "Battery saver: the screen turns off after 8 seconds idle, and the CPU slows down."
             } else {
                 "The screen dims after 20 seconds idle, to save battery."
@@ -1336,7 +1303,7 @@ fn draw(canvas: &mut Canvas, fonts: &mut Fonts, status: &Status, state: &hid::St
 }
 
 /// The SELECT menu, over the whole screen: the modes, then the battery
-/// saver and Screen off.
+/// saver.
 fn draw_menu(canvas: &mut Canvas, fonts: &mut Fonts, menu: &Menu) {
     let w = canvas.width();
     canvas.clear(BG);
@@ -1358,8 +1325,7 @@ fn draw_menu(canvas: &mut Canvas, fonts: &mut Fonts, menu: &Menu) {
                 let (name, about) = describe(m);
                 (name, about, (m == menu.current).then_some("in use"))
             }
-            None if row == SAVER_ROW => ("Battery saver", "screen off sooner, slower CPU", Some(if menu.saver { "on" } else { "off" })),
-            None => ("Screen off", "dark while you play", Some(if menu.dark { "on" } else { "off" })),
+            None => ("Battery saver", "screen off sooner, slower CPU", Some(if menu.saver { "on" } else { "off" })),
         };
         let x = fonts.draw(canvas, name, LEFT, baseline, size, FG);
         fonts.draw(canvas, about, x + 16, baseline, size * 0.7, DIM);
@@ -1399,7 +1365,7 @@ mod tests {
         ];
         let mut canvas = Canvas::in_memory(1024, 768);
         draw(&mut canvas, &mut fonts, &Status::Waiting { reconnecting: None, mode: Mode::Pc }, &hid::State::default(), false);
-        draw_menu(&mut canvas, &mut fonts, &Menu { cursor: 4, current: Mode::Pc, saver: true, dark: true });
+        draw_menu(&mut canvas, &mut fonts, &Menu { cursor: 3, current: Mode::Pc, saver: true });
         png::write_png(&format!("{dir}/menu.png"), 1024, 768, &canvas.snapshot_rgb()).unwrap();
         for (name, status, state) in screens {
             let mut canvas = Canvas::in_memory(1024, 768);
@@ -1411,7 +1377,7 @@ mod tests {
     #[test]
     fn the_menu_moves_wraps_and_answers_a_and_b() {
         let rest = hid::State::default();
-        let mut menu = Menu { cursor: 0, current: Mode::Pc, saver: false, dark: false };
+        let mut menu = Menu { cursor: 0, current: Mode::Pc, saver: false };
         let mut down = rest;
         down.hat = 4;
         assert_eq!(menu_press(&mut menu, &rest, &down), MenuAction::Stay);
@@ -1424,10 +1390,8 @@ mod tests {
         assert_eq!(menu_press(&mut menu, &rest, &a), MenuAction::Switch(Mode::Xbox));
         menu.cursor = 0;
         assert_eq!(menu_press(&mut menu, &rest, &a), MenuAction::Close, "the mode already on");
-        menu.cursor = SAVER_ROW;
-        assert_eq!(menu_press(&mut menu, &rest, &a), MenuAction::ToggleSaver);
         menu.cursor = MENU_ROWS - 1;
-        assert_eq!(menu_press(&mut menu, &rest, &a), MenuAction::ToggleDark);
+        assert_eq!(menu_press(&mut menu, &rest, &a), MenuAction::ToggleSaver);
         menu_press(&mut menu, &rest, &down);
         assert_eq!(menu.cursor, 0, "wraps");
         let mut b = rest;

@@ -45,8 +45,7 @@ shows. Afterwards the handheld reconnects to that host by itself.
 
 The screen lights each control as it is pressed and dims itself once a host
 is connected. **Battery saver** in the same menu turns the screen off sooner
-and slows the CPU while idle; **Screen off** keeps it dark the whole time a
-host is connected, presses and all, a few seconds after it connects. Hold **MENU** for two seconds to quit; tap it
+and slows the CPU while idle. Hold **MENU** for two seconds to quit; tap it
 for the controller's Home, PS or Xbox button. Rumble works in the Xbox and
 PS4 modes.
 
