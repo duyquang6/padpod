@@ -59,9 +59,17 @@ const RECONNECT_EVERY: Duration = Duration::from_secs(4);
 const RECONNECT_BRISKLY_FOR: Duration = Duration::from_secs(60);
 /// ...and the pace after that.
 const RECONNECT_SLOWLY: Duration = Duration::from_secs(30);
+/// The least time between two reports. The XR829 takes reports faster than
+/// it can send them and queues them inside the chip, past any limit the
+/// kernel sets: with a PC also sending its sound, ~118 reports a second got
+/// through, and at 125 a second plus one per change the lag grew by 30 ms
+/// every second, to 884 ms after 30 s. GIMX, which stands in for a
+/// DualShock 4 to a PS4, sends one report every 10 ms and never more; so does
+/// Padpod.
+const REPORT_GAP: Duration = Duration::from_millis(10);
 /// How often a DualShock 4 reports with nothing changing. A real one streams
 /// continuously, and some hosts take a silent controller for a gone one.
-const PS4_REPORT_EVERY: Duration = Duration::from_millis(8);
+const PS4_REPORT_EVERY: Duration = REPORT_GAP;
 
 // The look follows spruce's SPRUCE theme (Gruvbox), as the handheld's other
 // native apps do: black, cream text, an orange accent.
@@ -648,10 +656,14 @@ fn session(
             fds.push(libc::pollfd { fd: l.control.as_raw_fd(), events: libc::POLLIN, revents: 0 });
             fds.push(libc::pollfd { fd: l.interrupt.as_raw_fd(), events: libc::POLLIN, revents: 0 });
         }
-        // A DualShock 4 is due its next report on a timer; everything else
-        // waits for something to happen.
+        // A DualShock 4 is due its next report on a timer, and a change held
+        // back by the gap is due when it ends; everything else waits for
+        // something to happen.
         let wait = match (mode, &link) {
             (Mode::Ps4, Some(_)) => PS4_REPORT_EVERY.saturating_sub(sent_at.elapsed()).as_millis() as i32,
+            (Mode::Pc | Mode::Xbox, Some(_)) if Some(pad.mapper.state) != sent => {
+                REPORT_GAP.saturating_sub(sent_at.elapsed()).as_millis() as i32
+            }
             _ => 100,
         };
         unsafe { libc::poll(fds.as_mut_ptr(), fds.len() as _, wait) };
@@ -692,6 +704,11 @@ fn session(
             eprintln!("link: connected to {} ({}) as {}", l.name, l.host, mode.label());
             sent = None;
             changed_at = Instant::now();
+            // A report the radio cannot take yet is dropped, not queued: the
+            // next one carries the whole state.
+            if let Err(e) = l.interrupt.shorten_queue() {
+                eprintln!("link: could not shorten the send queue: {e}");
+            }
         }
 
         // The host's side of the conversation.
@@ -758,8 +775,11 @@ fn session(
                 }
             }
             let due = match mode {
-                Mode::Pc | Mode::Xbox => Some(pad.mapper.state) != sent,
-                Mode::Ps4 => Some(pad.mapper.state) != sent || sent_at.elapsed() >= PS4_REPORT_EVERY,
+                // A change waits out the gap; the report then carries
+                // whatever the state is by that time.
+                Mode::Pc | Mode::Xbox => Some(pad.mapper.state) != sent && (sent.is_none() || sent_at.elapsed() >= REPORT_GAP),
+                // Streaming, a change rides on the next report of the stream.
+                Mode::Ps4 => sent.is_none() || sent_at.elapsed() >= PS4_REPORT_EVERY,
             };
             if !lost && due {
                 let result = match mode {

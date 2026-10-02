@@ -140,6 +140,20 @@ impl Channel {
         Ok(())
     }
 
+    /// Keep the send queue as short as the kernel allows, so a report the
+    /// radio cannot take yet is refused rather than queued behind the others:
+    /// a queue grows when the host takes reports slower than they are made,
+    /// and every press then waits behind it.
+    pub fn shorten_queue(&self) -> io::Result<()> {
+        // 0 is raised to the kernel's minimum.
+        let size: libc::c_int = 0;
+        let len = std::mem::size_of::<libc::c_int>() as libc::socklen_t;
+        if unsafe { libc::setsockopt(self.0.as_raw_fd(), libc::SOL_SOCKET, libc::SO_SNDBUF, &size as *const _ as *const _, len) } < 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
     /// One message, or None if nothing is waiting. A closed channel is an
     /// error, so the caller has one place to notice the host leaving.
     pub fn recv(&self) -> io::Result<Option<Vec<u8>>> {
