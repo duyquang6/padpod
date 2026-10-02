@@ -93,7 +93,10 @@ Padpod $VERSION - $firmware
 This archive is for $firmware. The other firmware reads a different directory;
 download the archive named for it instead of renaming this one.
 
-https://github.com/duyquang6/padpod
+Padpod is made by ligt. Its only official download is
+https://github.com/duyquang6/padpod/releases - please share that link
+rather than this file: re-uploading it anywhere else is not permitted (see
+LICENSE.md).
 EOF
 
     archive="Padpod-$VERSION-$firmware.zip"

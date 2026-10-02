@@ -22,6 +22,10 @@ This project is under the **PolyForm Noncommercial License 1.0.0**
 - **Keep third-party notices.** The bundled font is under the SIL Open Font
   License, and `CREDITS.md` lists the work Padpod builds on. Anything you
   carry over keeps its notices and credits too.
+- **Do not re-host the releases.** The archives on the Releases page are the
+  author's builds: do not upload them to another site, file host or store;
+  link to https://github.com/duyquang6/padpod/releases. Builds made from the
+  source may be shared noncommercially, with the `Required Notice:` lines.
 - **Do not remove or reword** `LICENSE.md`, `CREDITS.md`, the
   `Required Notice:` line, or credits in comments.
 

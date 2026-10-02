@@ -7,7 +7,9 @@ Bluetooth daemon while it runs.
 
 ## Download and install
 
-Pick the archive for your firmware from **[the latest release](../../releases/latest)**:
+Pick the archive for your firmware from **[the latest release](../../releases/latest)**. This
+repository's Releases page is Padpod's only official download: if you share
+Padpod, share that link, not the file.
 
 | Firmware | File |
 |---|---|
@@ -71,7 +73,10 @@ permission. It is not an OSI-approved open-source license.
 [CREDITS.md](CREDITS.md) lists the work Padpod builds on.
 
 Every source file carries its copyright line and license identifier; keep
-them in any copy.
+them in any copy. The release archives are the author's own builds: they may
+not be re-uploaded or mirrored elsewhere - link to the releases page instead.
+Builds you make yourself from the source may be shared under the license's
+terms, with its `Required Notice:` lines, which name this repository.
 
 ## Trademarks and warranty
 
