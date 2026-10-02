@@ -1,0 +1,8 @@
+{
+  "label": "Padpod",
+  "icon": "icon.png",
+  "launch": "launch.sh",
+  "description": "A Bluetooth controller for PC, iPad and Android",
+  "hideInSimpleMode": false,
+  "devices": ["TRIMUI_BRICK_PRO"]
+}

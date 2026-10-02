@@ -1,0 +1,4 @@
+# Rust ships rust-lld plus a self-contained musl libc for this target, so no
+# external cross toolchain is needed (same setup as Truepod).
+[target.aarch64-unknown-linux-musl]
+linker = "rust-lld"

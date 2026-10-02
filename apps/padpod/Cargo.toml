@@ -1,0 +1,14 @@
+[package]
+name = "padpod"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+brick = { path = "../../crates/brick" }
+libc = "0.2"
+serde = "1"
+# BlueZ is driven over the system bus: the pairing agent and the HID service
+# record both need an object that stays registered for the whole session,
+# which `dbus-send` cannot hold. Pure Rust, so the binary stays static.
+zbus = { version = "5", default-features = false, features = ["blocking-api", "async-io"] }

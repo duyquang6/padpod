@@ -1,0 +1,11 @@
+[package]
+name = "brick"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "What every app here shares on the TrimUI Brick Pro: the panel, text, the pad, screenshots."
+
+[dependencies]
+libc = "0.2"
+# TTF rasteriser, pure Rust - same choice as Truepod, keeps the binaries static.
+fontdue = "0.9"

@@ -1,0 +1,8 @@
+{
+"package":"dev.ligt.padpod",
+"label":"Padpod",
+"icontop":"icon.png",
+"icon":"",
+"launch":"launch.sh",
+"description":"A Bluetooth controller for PC, iPad and Android"
+}
