@@ -1,3 +1,6 @@
+// Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+
 //! BlueZ, borrowed for the session.
 //!
 //! The system's `bluetoothd` runs with its `input` plugin, which is the HID

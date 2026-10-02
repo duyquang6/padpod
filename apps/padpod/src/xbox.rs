@@ -1,3 +1,6 @@
+// Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+
 //! Xbox Wireless Controller (model 1708, 045E:02FD), as it speaks over
 //! classic Bluetooth.
 //!

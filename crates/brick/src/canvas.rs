@@ -1,3 +1,6 @@
+// Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+
 //! The panel, as a double-buffered BGRA framebuffer. Shared by every app here.
 //!
 //! Adapted from Truepod's canvas, which drives this same 1024x768 panel: the

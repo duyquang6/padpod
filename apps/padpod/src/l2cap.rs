@@ -1,3 +1,6 @@
+// Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+
 //! Raw Bluetooth L2CAP sockets: the two HID channels.
 //!
 //! libc has no Bluetooth types, so the address structure is declared here.

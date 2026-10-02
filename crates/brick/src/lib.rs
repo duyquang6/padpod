@@ -1,3 +1,6 @@
+// Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+
 //! What every app in this repository shares on the TrimUI Brick Pro.
 //!
 //! - `canvas`: the 1024x768 panel as a double-buffered BGRA framebuffer.

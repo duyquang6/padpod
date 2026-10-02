@@ -1,3 +1,6 @@
+// Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+
 //! The handheld's own controls, read as a whole state rather than as presses.
 //!
 //! The gamepad usages are numbered in Linux's positional order (BTN_SOUTH,

@@ -1,3 +1,6 @@
+// Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+
 //! The HID service record, in the XML form BlueZ's `RegisterProfile` takes.
 //!
 //! This is what a host reads before connecting: that the device is a gamepad,

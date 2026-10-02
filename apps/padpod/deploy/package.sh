@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Build Padpod and package it for both firmwares.
 #
 #   VERSION=2026.10.02 ./apps/padpod/deploy/package.sh

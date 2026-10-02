@@ -70,4 +70,19 @@ permission. It is not an OSI-approved open-source license.
 
 [CREDITS.md](CREDITS.md) lists the work Padpod builds on.
 
+Every source file carries its copyright line and license identifier; keep
+them in any copy.
+
+## Trademarks and warranty
+
+Padpod is not affiliated with, endorsed by or sponsored by Microsoft, Sony or
+TrimUI. Xbox is a trademark of Microsoft; PlayStation and DualShock are
+trademarks of Sony Interactive Entertainment; TrimUI and Brick are the
+trademarks of their owner. They are named here, and the controllers drawn on
+screen in Padpod's own simplified style, only to say which hosts Padpod works
+with. Padpod contains no code, firmware or artwork of theirs.
+
+Padpod comes as is, without warranty of any kind, and its author is not
+liable for any damage arising from its use - see `LICENSE.md`.
+
 Reusing this code with an AI assistant? See [AGENTS.md](AGENTS.md).

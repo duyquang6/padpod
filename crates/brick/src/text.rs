@@ -1,3 +1,6 @@
+// Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+
 //! Scalable text. Glyphs are rasterised once per (character, size) and cached.
 //!
 //! Album names mix Latin, Vietnamese, Korean and Chinese, so the first choice

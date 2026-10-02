@@ -1,3 +1,6 @@
+// Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+
 //! DualShock 4 (PS4 controller), as it speaks over Bluetooth.
 //!
 //! Hosts that only take controllers they know - iPadOS above all, and games

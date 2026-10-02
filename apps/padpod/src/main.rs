@@ -1,3 +1,6 @@
+// Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+
 //! Padpod: the TrimUI Brick Pro as a Bluetooth gamepad.
 //!
 //! Three modes, chosen from the menu SELECT opens. **PC** (the default)
@@ -1002,24 +1005,6 @@ fn stick(canvas: &mut Canvas, cx: i32, cy: i32, x: u8, y: u8, clicked: bool) {
     circle(canvas, cx + offset(x), cy + offset(y), 30, if clicked { ACCENT } else { KNOB });
 }
 
-fn dpad(canvas: &mut Canvas, cx: i32, cy: i32, state: &hid::State) {
-    let (arm, reach) = (74, 112);
-    round_rect(canvas, cx - arm / 2, cy - reach, arm, 2 * reach, 14, CHIP);
-    round_rect(canvas, cx - reach, cy - arm / 2, 2 * reach, arm, 14, CHIP);
-    let len = reach - arm / 2 - 4;
-    let arms = [
-        (0, cx - arm / 2, cy - reach, arm, len),
-        (4, cx - arm / 2, cy + arm / 2 + 4, arm, len),
-        (6, cx - reach, cy - arm / 2, len, arm),
-        (2, cx + arm / 2 + 4, cy - arm / 2, len, arm),
-    ];
-    for (dir, x, y, w, h) in arms {
-        if lit(Control::Hat(dir), state) {
-            round_rect(canvas, x, y, w, h, 14, ACCENT);
-        }
-    }
-    circle(canvas, cx, cy, 16, WELL);
-}
 
 /// The title and the rule under it, with a short reading at the right of
 /// the title's line.
@@ -1065,9 +1050,195 @@ fn lines(canvas: &mut Canvas, fonts: &mut Fonts, text: &[String]) {
     }
 }
 
-fn draw(canvas: &mut Canvas, fonts: &mut Fonts, status: &Status, state: &hid::State, quitting: bool) {
+/// A line `width` wide from one point to another, as a run of dots: enough
+/// for the few short strokes of the face buttons' symbols.
+fn stroke(canvas: &mut Canvas, (x0, y0): (i32, i32), (x1, y1): (i32, i32), width: i32, colour: Rgb) {
+    let steps = (x1 - x0).abs().max((y1 - y0).abs()).max(1);
+    for i in 0..=steps {
+        circle(canvas, x0 + (x1 - x0) * i / steps, y0 + (y1 - y0) * i / steps, width / 2, colour);
+    }
+}
+
+/// A round face button `r` across; returns the colour to mark it in.
+fn round_button(canvas: &mut Canvas, cx: i32, cy: i32, r: i32, on: bool) -> Rgb {
+    circle(canvas, cx, cy, r, if on { ACCENT } else { CHIP });
+    if on { BG } else { FG }
+}
+
+/// The D-pad as a cross, `arm` wide and reaching `reach` from its centre;
+/// each arm lights for its direction and the diagonals beside it.
+fn dpad_sized(canvas: &mut Canvas, cx: i32, cy: i32, arm: i32, reach: i32, state: &hid::State) {
+    let r = arm / 5;
+    round_rect(canvas, cx - arm / 2, cy - reach, arm, 2 * reach, r, CHIP);
+    round_rect(canvas, cx - reach, cy - arm / 2, 2 * reach, arm, r, CHIP);
+    let len = reach - arm / 2 - 4;
+    let arms = [
+        (0, cx - arm / 2, cy - reach, arm, len),
+        (4, cx - arm / 2, cy + arm / 2 + 4, arm, len),
+        (6, cx - reach, cy - arm / 2, len, arm),
+        (2, cx + arm / 2 + 4, cy - arm / 2, len, arm),
+    ];
+    for (dir, x, y, w, h) in arms {
+        if lit(Control::Hat(dir), state) {
+            round_rect(canvas, x, y, w, h, r, ACCENT);
+        }
+    }
+    circle(canvas, cx, cy, arm / 5, WELL);
+}
+
+/// The face of an Xbox-style controller: an offset layout, the left stick
+/// above the D-pad and the face buttons above the right stick. Drawn plain,
+/// with no maker's logo: the Home button is a plain disc.
+fn xbox_face(canvas: &mut Canvas, fonts: &mut Fonts, state: &hid::State) {
+    use hid::button;
+    // Bumpers in front, triggers behind them; the body overlaps both.
+    shoulder(canvas, fonts, 210, 196, 150, 60, "LT", state.pressed(button::L2), Some(state.triggers[0]));
+    shoulder(canvas, fonts, 664, 196, 150, 60, "RT", state.pressed(button::R2), Some(state.triggers[1]));
+    shoulder(canvas, fonts, 150, 236, 220, 56, "LB", state.pressed(button::L1), None);
+    shoulder(canvas, fonts, 654, 236, 220, 56, "RB", state.pressed(button::R1), None);
+    // The body: a wide top and two grips.
+    for (grow, colour) in [(3, BODY_EDGE), (0, BODY)] {
+        round_rect(canvas, 110 - grow, 280 - grow, 804 + 2 * grow, 270 + 2 * grow, 130 + grow, colour);
+        circle(canvas, 250, 548, 140 + grow, colour);
+        circle(canvas, 774, 548, 140 + grow, colour);
+    }
+    // Plain disc for Home, View and Menu beside it.
+    circle(canvas, 512, 330, 30, if state.pressed(button::HOME) { ACCENT } else { CHIP });
+    pill(canvas, fonts, 440, 410, 70, "VIEW", state.pressed(button::SELECT));
+    pill(canvas, fonts, 584, 410, 70, "MENU", state.pressed(button::START));
+    let [lx, ly, rx, ry] = state.sticks;
+    stick(canvas, 290, 395, lx, ly, state.pressed(button::L3));
+    dpad_sized(canvas, 390, 545, 54, 82, state);
+    stick(canvas, 634, 545, rx, ry, state.pressed(button::R3));
+    // A, B, X, Y by position, as Xbox games read them: the bottom button is
+    // A whatever the handheld prints on it.
+    let (fx, fy, gap) = (744, 395, 66);
+    for (label, x, y, n) in [
+        ("Y", fx, fy - gap, button::NORTH),
+        ("X", fx - gap, fy, button::WEST),
+        ("B", fx + gap, fy, button::EAST),
+        ("A", fx, fy + gap, button::SOUTH),
+    ] {
+        let on = state.pressed(n);
+        let ink = round_button(canvas, x, y, 34, on);
+        fonts.draw_centred(canvas, label, x, y + 11, 32.0, if on { ink } else { letter_colour(label) });
+    }
+}
+
+/// The colours Xbox players know the letters by, in the theme's own
+/// shades.
+fn letter_colour(label: &str) -> Rgb {
+    match label {
+        "A" => OK,
+        "B" => ERROR,
+        "X" => Rgb(0x83, 0xA5, 0x98),
+        _ => WARN,
+    }
+}
+
+/// The face of a DualShock-style controller: both sticks low and side by
+/// side, a touchpad between the D-pad and the face buttons, which carry
+/// shapes rather than letters. The Home button is a plain disc.
+fn ds4_face(canvas: &mut Canvas, fonts: &mut Fonts, state: &hid::State) {
+    use hid::button;
+    shoulder(canvas, fonts, 180, 196, 160, 60, "L2", state.pressed(button::L2), Some(state.triggers[0]));
+    shoulder(canvas, fonts, 684, 196, 160, 60, "R2", state.pressed(button::R2), Some(state.triggers[1]));
+    shoulder(canvas, fonts, 150, 236, 200, 52, "L1", state.pressed(button::L1), None);
+    shoulder(canvas, fonts, 674, 236, 200, 52, "R1", state.pressed(button::R1), None);
+    // A wide top, and two long grips reaching down.
+    for (grow, colour) in [(3, BODY_EDGE), (0, BODY)] {
+        round_rect(canvas, 110 - grow, 276 - grow, 804 + 2 * grow, 250 + 2 * grow, 110 + grow, colour);
+        round_rect(canvas, 130 - grow, 380 - grow, 250 + 2 * grow, 320 + 2 * grow, 125 + grow, colour);
+        round_rect(canvas, 644 - grow, 380 - grow, 250 + 2 * grow, 320 + 2 * grow, 125 + grow, colour);
+    }
+    // The touchpad, Share and Options at its corners.
+    round_rect(canvas, 392, 290, 240, 130, 20, WELL);
+    pill(canvas, fonts, 340, 316, 84, "SHARE", state.pressed(button::SELECT));
+    pill(canvas, fonts, 690, 316, 104, "OPTIONS", state.pressed(button::START));
+    dpad_sized(canvas, 255, 380, 54, 84, state);
+    let [lx, ly, rx, ry] = state.sticks;
+    stick(canvas, 400, 530, lx, ly, state.pressed(button::L3));
+    stick(canvas, 624, 530, rx, ry, state.pressed(button::R3));
+    circle(canvas, 512, 500, 24, if state.pressed(button::HOME) { ACCENT } else { CHIP });
+    // Shapes by position: triangle top, circle right, cross bottom, square
+    // left - the same buttons the PS4 mode sends.
+    let (fx, fy, gap) = (789, 380, 66);
+    let shapes: [(i32, i32, u8, Rgb); 4] = [
+        (fx, fy - gap, button::NORTH, OK),
+        (fx + gap, fy, button::EAST, ERROR),
+        (fx, fy + gap, button::SOUTH, Rgb(0x83, 0xA5, 0x98)),
+        (fx - gap, fy, button::WEST, Rgb(0xD3, 0x86, 0x9B)),
+    ];
+    for (i, (x, y, n, tint)) in shapes.into_iter().enumerate() {
+        let on = state.pressed(n);
+        let ink = if on { round_button(canvas, x, y, 34, true) } else { round_button(canvas, x, y, 34, false); tint };
+        let fill = if on { ACCENT } else { CHIP };
+        match i {
+            // Triangle.
+            0 => {
+                let (a, b, c) = ((x, y - 15), (x - 15, y + 11), (x + 15, y + 11));
+                stroke(canvas, a, b, 5, ink);
+                stroke(canvas, b, c, 5, ink);
+                stroke(canvas, c, a, 5, ink);
+            }
+            // Circle: a ring.
+            1 => {
+                circle(canvas, x, y, 15, ink);
+                circle(canvas, x, y, 10, fill);
+            }
+            // Cross.
+            2 => {
+                stroke(canvas, (x - 12, y - 12), (x + 12, y + 12), 5, ink);
+                stroke(canvas, (x - 12, y + 12), (x + 12, y - 12), 5, ink);
+            }
+            // Square.
+            _ => {
+                canvas.fill_rect(x - 13, y - 13, 26, 26, ink);
+                canvas.fill_rect(x - 8, y - 8, 16, 16, fill);
+            }
+        }
+    }
+}
+
+/// The handheld's own face, as the generic gamepad has no other: laid out
+/// as the buttons sit on the Brick.
+fn brick_face(canvas: &mut Canvas, fonts: &mut Fonts, state: &hid::State) {
     use hid::button;
     let w = canvas.width();
+    let (bx, by, bw, bh) = (64, 256, w - 128, 436);
+    // Shoulders first, so the body overlaps their lower edge. On the
+    // handheld L1/R1 sit at the outer corners and L2/R2 just inside them.
+    shoulder(canvas, fonts, bx + 8, by - 64, 190, 64, "L1", state.pressed(button::L1), None);
+    shoulder(canvas, fonts, bx + bw - 198, by - 64, 190, 64, "R1", state.pressed(button::R1), None);
+    shoulder(canvas, fonts, bx + 210, by - 64, 170, 64, "L2", state.pressed(button::L2), Some(state.triggers[0]));
+    shoulder(canvas, fonts, bx + bw - 380, by - 64, 170, 64, "R2", state.pressed(button::R2), Some(state.triggers[1]));
+    round_rect(canvas, bx - 3, by - 3, bw + 6, bh + 6, 51, BODY_EDGE);
+    round_rect(canvas, bx, by, bw, bh, 48, BODY);
+
+    let mid_y = by + 158;
+    dpad_sized(canvas, bx + 210, mid_y, 74, 112, state);
+
+    // Diamond: X top, Y left, A right, B bottom, as printed on the handheld.
+    let (fx, gap) = (bx + bw - 210, 92);
+    face_button(canvas, fonts, fx, mid_y - gap, "X", state.pressed(button::NORTH));
+    face_button(canvas, fonts, fx - gap, mid_y, "Y", state.pressed(button::WEST));
+    face_button(canvas, fonts, fx + gap, mid_y, "A", state.pressed(button::EAST));
+    face_button(canvas, fonts, fx, mid_y + gap, "B", state.pressed(button::SOUTH));
+
+    // Sticks below the D-pad and the face buttons.
+    let stick_y = by + bh - 74;
+    let [lx, ly, rx, ry] = state.sticks;
+    stick(canvas, bx + 210, stick_y, lx, ly, state.pressed(button::L3));
+    stick(canvas, fx, stick_y, rx, ry, state.pressed(button::R3));
+
+    let cx = bx + bw / 2;
+    // MENU, SELECT, START from left to right, as on the handheld.
+    pill(canvas, fonts, cx - 112, stick_y, 100, "MENU", state.pressed(button::HOME));
+    pill(canvas, fonts, cx, stick_y, 100, "SELECT", state.pressed(button::SELECT));
+    pill(canvas, fonts, cx + 112, stick_y, 100, "START", state.pressed(button::START));
+}
+
+fn draw(canvas: &mut Canvas, fonts: &mut Fonts, status: &Status, state: &hid::State, quitting: bool) {
     canvas.clear(BG);
 
     let (corner, colour, text): (String, Rgb, Vec<String>) = match status {
@@ -1097,38 +1268,16 @@ fn draw(canvas: &mut Canvas, fonts: &mut Fonts, status: &Status, state: &hid::St
     header(canvas, fonts, NAME, &corner, colour);
     lines(canvas, fonts, &text);
 
-    // The handheld's face, laid out as the buttons sit on it.
-    let (bx, by, bw, bh) = (64, 256, w - 128, 436);
-    // Shoulders first, so the body overlaps their lower edge. On the
-    // handheld L1/R1 sit at the outer corners and L2/R2 just inside them.
-    shoulder(canvas, fonts, bx + 8, by - 64, 190, 64, "L1", state.pressed(button::L1), None);
-    shoulder(canvas, fonts, bx + bw - 198, by - 64, 190, 64, "R1", state.pressed(button::R1), None);
-    shoulder(canvas, fonts, bx + 210, by - 64, 170, 64, "L2", state.pressed(button::L2), Some(state.triggers[0]));
-    shoulder(canvas, fonts, bx + bw - 380, by - 64, 170, 64, "R2", state.pressed(button::R2), Some(state.triggers[1]));
-    round_rect(canvas, bx - 3, by - 3, bw + 6, bh + 6, 51, BODY_EDGE);
-    round_rect(canvas, bx, by, bw, bh, 48, BODY);
-
-    let mid_y = by + 158;
-    dpad(canvas, bx + 210, mid_y, state);
-
-    // Diamond: X top, Y left, A right, B bottom, as printed on the handheld.
-    let (fx, gap) = (bx + bw - 210, 92);
-    face_button(canvas, fonts, fx, mid_y - gap, "X", state.pressed(button::NORTH));
-    face_button(canvas, fonts, fx - gap, mid_y, "Y", state.pressed(button::WEST));
-    face_button(canvas, fonts, fx + gap, mid_y, "A", state.pressed(button::EAST));
-    face_button(canvas, fonts, fx, mid_y + gap, "B", state.pressed(button::SOUTH));
-
-    // Sticks below the D-pad and the face buttons.
-    let stick_y = by + bh - 74;
-    let [lx, ly, rx, ry] = state.sticks;
-    stick(canvas, bx + 210, stick_y, lx, ly, state.pressed(button::L3));
-    stick(canvas, fx, stick_y, rx, ry, state.pressed(button::R3));
-
-    let cx = bx + bw / 2;
-    // MENU, SELECT, START from left to right, as on the handheld.
-    pill(canvas, fonts, cx - 112, stick_y, 100, "MENU", state.pressed(button::HOME));
-    pill(canvas, fonts, cx, stick_y, 100, "SELECT", state.pressed(button::SELECT));
-    pill(canvas, fonts, cx + 112, stick_y, 100, "START", state.pressed(button::START));
+    // A picture of the controller the host sees, lighting what is pressed.
+    let mode = match status {
+        Status::Waiting { mode, .. } | Status::Connected { mode, .. } => Some(*mode),
+        _ => None,
+    };
+    match mode {
+        Some(Mode::Xbox) => xbox_face(canvas, fonts, state),
+        Some(Mode::Ps4) => ds4_face(canvas, fonts, state),
+        _ => brick_face(canvas, fonts, state),
+    }
 
     let credit = format!("{NAME} by {AUTHOR}");
     if quitting {
@@ -1195,6 +1344,9 @@ mod tests {
             ("failed", Status::Failed("Bluetooth is off. Turn it on in the firmware's settings and open Padpod again.".into()), hid::State::default()),
             ("waiting", Status::Waiting { reconnecting: Some("Pixel 9".into()), mode: Mode::Ps4 }, hid::State::default()),
             ("connected", Status::Connected { name: "my-pc".into(), mode: Mode::Pc }, pressed),
+            ("xbox", Status::Connected { name: "Windows PC".into(), mode: Mode::Xbox }, pressed),
+            ("ps4", Status::Connected { name: "iPad".into(), mode: Mode::Ps4 }, pressed),
+            ("xbox-rest", Status::Waiting { reconnecting: None, mode: Mode::Xbox }, hid::State::default()),
         ];
         let mut canvas = Canvas::in_memory(1024, 768);
         draw(&mut canvas, &mut fonts, &Status::Waiting { reconnecting: None, mode: Mode::Pc }, &hid::State::default(), false);

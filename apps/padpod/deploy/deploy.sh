@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright 2026 ligt (https://github.com/duyquang6/padpod)
+# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
 # Build for the device and install into spruce's app folder.
 #
 #   HOST=root@<device-ip> ./deploy/deploy.sh
