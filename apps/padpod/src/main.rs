@@ -1,5 +1,5 @@
 // Copyright 2026 ligt (https://github.com/duyquang6/padpod)
-// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+// SPDX-License-Identifier: GPL-3.0-only
 
 //! Padpod: the TrimUI Brick Pro as a Bluetooth gamepad.
 //!
@@ -1353,6 +1353,12 @@ fn draw_menu(canvas: &mut Canvas, fonts: &mut Fonts, menu: &Menu) {
             let ow = fonts.measure(on, size * 0.8);
             fonts.draw(canvas, on, w - LEFT - ow, baseline, size * 0.8, if on == "off" { DIM } else { ACCENT });
         }
+    }
+    // The GPL's Appropriate Legal Notices, with the credit in the footer:
+    // copyright, no warranty, and where the license and source are.
+    let notice = format!("Free software under the GPL-3.0 with additional terms, without warranty. License and source: {HOME_PAGE}");
+    for (i, line) in fonts.wrap(&notice, 22.0, w - LEFT * 2, 2).iter().enumerate() {
+        fonts.draw(canvas, line, LEFT, BOTTOM_BASELINE - 84 + i as i32 * 30, 22.0, DIM);
     }
     footer(canvas, fonts, &[("A", "choose"), ("B", "close")], &format!("by {AUTHOR} · {HOME_PAGE}"));
 }

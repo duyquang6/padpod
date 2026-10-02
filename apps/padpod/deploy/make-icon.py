@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright 2026 ligt (https://github.com/duyquang6/padpod)
-# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: GPL-3.0-only
 """Generate deploy/icon.png: a gamepad outline with a D-pad and two buttons,
 in the SPRUCE theme's colours. Written by hand with zlib - the build host has no imaging
 library."""

@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright 2026 ligt (https://github.com/duyquang6/padpod)
-# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: GPL-3.0-only
 # Build Padpod and package it for both firmwares.
 #
 #   VERSION=2026.10.02 ./apps/padpod/deploy/package.sh
@@ -74,7 +74,7 @@ for firmware in spruceOS stockOS; do
     cp "$manifest" "$stage/config.json"
     # The license, the credits and the font's license travel with the binary,
     # as the licenses ask.
-    cp "$ROOT/LICENSE.md" "$ROOT/CREDITS.md" "$ROOT/crates/brick/assets/OFL.txt" "$stage/"
+    cp "$ROOT/LICENSE" "$ROOT/ADDITIONAL-TERMS.md" "$ROOT/CREDITS.md" "$ROOT/crates/brick/assets/OFL.txt" "$stage/"
     chmod +x "$stage/padpod" "$stage/launch.sh"
 
     cat > "$DIST/$firmware/INSTALL.txt" <<EOF
@@ -93,10 +93,13 @@ Padpod $VERSION - $firmware
 This archive is for $firmware. The other firmware reads a different directory;
 download the archive named for it instead of renaming this one.
 
-Padpod is made by ligt. Its official source, with each archive's SHA-256
-checksum, is https://github.com/duyquang6/padpod/releases/tag/$VERSION
-You may share this archive unchanged and free of charge, if you name Padpod,
-its author and that page next to it (see LICENSE.md).
+Padpod is made by ligt. Its official release, with its source and each
+archive's SHA-256 checksum, is
+https://github.com/duyquang6/padpod/releases/tag/$VERSION
+
+Padpod is free software under the GNU GPL version 3 with additional terms
+(LICENSE, ADDITIONAL-TERMS.md). You may share this archive; when you do,
+offer its source too - the page above - and keep these files with it.
 EOF
 
     archive="Padpod-$VERSION-$firmware.zip"

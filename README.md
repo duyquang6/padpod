@@ -68,44 +68,47 @@ text, the buttons and screenshots.
 
 ## License and credits
 
-Padpod is source-available for **noncommercial use**, under the
-[PolyForm Noncommercial License 1.0.0](LICENSE.md). You may use, change and
-share it for personal and other noncommercial purposes, as long as you keep
-the `Required Notice:` line from `LICENSE.md` with any copy and credit this
-project. Selling it, or using it commercially, needs the author's
-permission. It is not an OSI-approved open-source license.
+Padpod is free software under the [GNU General Public License, version 3
+only](LICENSE), with the [additional terms](ADDITIONAL-TERMS.md) that section 7
+of that license allows. You may use, study, change and share it - for any
+purpose - as long as everything you share that is based on it stays under
+the same terms, with its source. The additional terms ask that:
+
+- the credit "Padpod by ligt" and the link to this repository stay on the
+  screens that show them, and the copyright line at the top of each file;
+- a modified version says so, and is not passed off as the original or as an
+  official release;
+- a modified version goes by another name than Padpod, and does not use the
+  author's name to promote itself.
 
 [CREDITS.md](CREDITS.md) lists the work Padpod builds on.
 
-Every source file carries its copyright line and license identifier; keep
-them in any copy.
-
-You may redistribute the release archives, free of charge, as long as each
-one is unchanged - it matches the SHA-256 checksum on its release page - and
-you name Padpod, its author and the release page it came from next to the
-download. Builds you make yourself from the source may be shared under the
-license's terms, with its `Required Notice:` lines, which name this
-repository.
+The release archives may be shared as they are; whoever shares them must
+also offer their source (the release's tag here) and keep these terms with
+them. The SHA-256 checksums on each release page let anyone check that an
+archive is the official one. Releases 2026.10.02 and 2026.10.03 were published
+under the PolyForm Noncommercial License 1.0.0.
 
 ## Copying, AI and "vibe code"
 
-Some say code written with an AI is anyone's to take. Not this code. Padpod is
-published under a license, and anyone who uses it accepts that license, however
-its code was written. Having an AI rewrite it, translate it or "redo it in
-another language" does not make it yours either: that is still a copy.
+Some say code written with an AI is anyone's to take. It is not that simple:
+Padpod is published under a license, and anyone who uses it accepts that
+license, however its code was written. Having an AI rewrite it, translate it
+or "redo it in another language" does not make it yours either: that is
+still a copy, and it stays under the GPL.
 
 If Padpod's code, its protocol research or its screens end up in your work:
 
-- keep every file's copyright line and the `Required Notice:` lines;
+- keep every file's copyright line, and the credit on screen;
 - name Padpod and link to this repository, in the file and in your README or
   credits;
 - credit the research Padpod itself builds on, listed in
   [CREDITS.md](CREDITS.md): that is other people's work, not ours to hand on
   uncredited;
-- do not sell it.
+- publish your work's source under the same terms, and give it its own name.
 
-Taking it without credit, or passing it off as your own, breaks the license,
-and the license then ends (see "Violations" in `LICENSE.md`).
+Taking it without credit, closing its source, or passing it off as your own
+breaks the license, and the license then ends (see section 8 of `LICENSE`).
 
 ## Trademarks and warranty
 
@@ -117,6 +120,7 @@ screen in Padpod's own simplified style, only to say which hosts Padpod works
 with. Padpod contains no code, firmware or artwork of theirs.
 
 Padpod comes as is, without warranty of any kind, and its author is not
-liable for any damage arising from its use - see `LICENSE.md`.
+liable for any damage arising from its use - see sections 15 and 16 of
+`LICENSE`.
 
 Reusing this code with an AI assistant? See [AGENTS.md](AGENTS.md).

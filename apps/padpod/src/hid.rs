@@ -1,5 +1,5 @@
 // Copyright 2026 ligt (https://github.com/duyquang6/padpod)
-// SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+// SPDX-License-Identifier: GPL-3.0-only
 
 //! The gamepad as a Bluetooth HID device sees it: the report descriptor the
 //! host reads from the service record, the input report sent on every change,

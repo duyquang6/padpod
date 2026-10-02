@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright 2026 ligt (https://github.com/duyquang6/padpod)
-# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: GPL-3.0-only
 # Build for the device and install into spruce's app folder.
 #
 #   HOST=root@<device-ip> ./deploy/deploy.sh
@@ -28,6 +28,6 @@ if ! scp -O -q "$BINARY" "$HOST:$DEST/padpod" 2>/dev/null; then
     echo "the app is running; the new build takes effect the next time it opens" >&2
     scp -O -q "$BINARY" "$HOST:$DEST/padpod.next"
 fi
-scp -O -q deploy/launch.sh deploy/config.json deploy/icon.png ../../crates/brick/assets/OFL.txt ../../LICENSE.md ../../CREDITS.md "$HOST:$DEST/"
+scp -O -q deploy/launch.sh deploy/config.json deploy/icon.png ../../crates/brick/assets/OFL.txt ../../LICENSE ../../ADDITIONAL-TERMS.md ../../CREDITS.md "$HOST:$DEST/"
 ssh "$HOST" "chmod +x $DEST/launch.sh $DEST/padpod* ; sync"
 echo "installed to $HOST:$DEST"

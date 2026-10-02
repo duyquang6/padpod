@@ -1,6 +1,6 @@
 #!/bin/sh
 # Copyright 2026 ligt (https://github.com/duyquang6/padpod)
-# SPDX-License-Identifier: LicenseRef-PolyForm-Noncommercial-1.0.0
+# SPDX-License-Identifier: GPL-3.0-only
 # The launcher's entry point for the app, under spruceOS or the stock TrimUI
 # firmware. The binary owns /dev/fb0, reads the pad, and stands in for the
 # system's bluetoothd while it runs.
