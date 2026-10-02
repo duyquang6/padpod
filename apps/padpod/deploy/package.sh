@@ -93,10 +93,10 @@ Padpod $VERSION - $firmware
 This archive is for $firmware. The other firmware reads a different directory;
 download the archive named for it instead of renaming this one.
 
-Padpod is made by ligt. Its only official download is
-https://github.com/duyquang6/padpod/releases - please share that link
-rather than this file: re-uploading it anywhere else is not permitted (see
-LICENSE.md).
+Padpod is made by ligt. Its official source, with each archive's SHA-256
+checksum, is https://github.com/duyquang6/padpod/releases/tag/$VERSION
+You may share this archive unchanged and free of charge, if you name Padpod,
+its author and that page next to it (see LICENSE.md).
 EOF
 
     archive="Padpod-$VERSION-$firmware.zip"
@@ -104,7 +104,10 @@ EOF
     rm -rf "${DIST:?}/$firmware"
 done
 
+# Published beside the archives: what a copy found anywhere else is checked
+# against, and what the license holds a redistributed archive to.
+( cd "$DIST" && sha256sum Padpod-*.zip > SHA256SUMS.txt )
+
 ls -la "$DIST"
 echo
-echo "checksums:"
-( cd "$DIST" && sha256sum ./*.zip )
+cat "$DIST/SHA256SUMS.txt"

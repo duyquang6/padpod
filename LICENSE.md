@@ -2,11 +2,18 @@ Required Notice: Copyright 2026 ligt (https://github.com/duyquang6/padpod)
 Required Notice: Padpod's official source and releases are at https://github.com/duyquang6/padpod
 
 Official release archives. The archives on this repository's Releases page
-(Padpod-<version>-<firmware>.zip) and the binaries in them are the author's
-own builds. You may download them from that page and install them on
-hardware you own. You may not re-upload, mirror or offer them for download
-anywhere else, whether changed or not; to share Padpod, link to
-https://github.com/duyquang6/padpod/releases.
+(Padpod-<version>-<firmware>.zip) are the author's own builds. You may install
+them on hardware you own, and you may redistribute them, on three conditions:
+
+1. Unchanged. Each archive you offer must match, byte for byte, the SHA-256
+   checksum published for it in SHA256SUMS.txt on its release page.
+2. With its source. Next to the download, name Padpod and its author, and
+   link to the release the archive came from, for example
+   https://github.com/duyquang6/padpod/releases/tag/2026.10.02.
+3. Free of charge, and for no other commercial purpose.
+
+An archive or binary that has been changed may not be offered as a Padpod
+release; builds you make yourself from the source are covered below.
 
 The source code in this repository is licensed under the PolyForm
 Noncommercial License 1.0.0, below, except the bundled Nunito font, which is under the

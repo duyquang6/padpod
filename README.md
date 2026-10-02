@@ -7,9 +7,10 @@ Bluetooth daemon while it runs.
 
 ## Download and install
 
-Pick the archive for your firmware from **[the latest release](../../releases/latest)**. This
-repository's Releases page is Padpod's only official download: if you share
-Padpod, share that link, not the file.
+Pick the archive for your firmware from **[the latest release](../../releases/latest)**. That
+page is Padpod's official source, and lists each archive's SHA-256 checksum in
+`SHA256SUMS.txt`: if you got Padpod anywhere else, check it against that list
+(`sha256sum Padpod-*.zip`) before installing.
 
 | Firmware | File |
 |---|---|
@@ -73,10 +74,14 @@ permission. It is not an OSI-approved open-source license.
 [CREDITS.md](CREDITS.md) lists the work Padpod builds on.
 
 Every source file carries its copyright line and license identifier; keep
-them in any copy. The release archives are the author's own builds: they may
-not be re-uploaded or mirrored elsewhere - link to the releases page instead.
-Builds you make yourself from the source may be shared under the license's
-terms, with its `Required Notice:` lines, which name this repository.
+them in any copy.
+
+You may redistribute the release archives, free of charge, as long as each
+one is unchanged - it matches the SHA-256 checksum on its release page - and
+you name Padpod, its author and the release page it came from next to the
+download. Builds you make yourself from the source may be shared under the
+license's terms, with its `Required Notice:` lines, which name this
+repository.
 
 ## Trademarks and warranty
 
