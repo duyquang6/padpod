@@ -5,7 +5,9 @@ one static aarch64-musl binary that draws straight to the framebuffer, reads
 the handheld's own buttons and sticks, and stands in for the system's
 Bluetooth daemon while it runs.
 
-![Padpod in Xbox, PS4 and PC modes, and its menu](docs/screenshots/padpod-0-cover.png)
+| | |
+|---|---|
+| ![Padpod connected in Xbox mode, lighting the buttons pressed](docs/screenshots/controller.png) | ![Padpod's menu: the modes and the battery saver](docs/screenshots/menu.png) |
 
 ## Download and install
 
