@@ -1038,11 +1038,22 @@ fn footer(canvas: &mut Canvas, fonts: &mut Fonts, hints: &[(&str, &str)], credit
 }
 
 /// Lines of text under the rule: the first in the text colour, the rest
-/// dimmer.
-fn lines(canvas: &mut Canvas, fonts: &mut Fonts, text: &[String]) {
+/// dimmer. `who`, if the first line names it, is picked out in green: the
+/// host connected, the one thing worth finding at a glance.
+fn lines(canvas: &mut Canvas, fonts: &mut Fonts, text: &[String], who: Option<&str>) {
     let w = canvas.width();
     let mut y = CONTENT_TOP;
     for (i, line) in text.iter().enumerate() {
+        if let Some((who, (before, after))) = who.filter(|_| i == 0).and_then(|who| Some((who, line.split_once(who)?))) {
+            let x = fonts.draw(canvas, before, LEFT, y, TEXT_SIZE, FG);
+            // A long name gives way, so the line stays on one row.
+            let room = w - LEFT - x - fonts.measure(after, TEXT_SIZE);
+            let who = fonts.ellipsize(who, TEXT_SIZE, room);
+            let x = fonts.draw(canvas, &who, x, y, TEXT_SIZE, OK);
+            fonts.draw(canvas, after, x, y, TEXT_SIZE, FG);
+            y += 36;
+            continue;
+        }
         for wrapped in fonts.wrap(line, TEXT_SIZE, w - LEFT * 2, 2) {
             fonts.draw(canvas, &wrapped, LEFT, y, TEXT_SIZE, if i == 0 { FG } else { DIM });
             y += 36;
@@ -1266,7 +1277,11 @@ fn draw(canvas: &mut Canvas, fonts: &mut Fonts, status: &Status, state: &hid::St
         }
     };
     header(canvas, fonts, NAME, &corner, colour);
-    lines(canvas, fonts, &text);
+    let who = match status {
+        Status::Connected { name, .. } => Some(name.as_str()),
+        _ => None,
+    };
+    lines(canvas, fonts, &text, who);
 
     // A picture of the controller the host sees, lighting what is pressed.
     let mode = match status {
