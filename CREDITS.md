@@ -22,9 +22,8 @@ controllers report about themselves, as recorded by the Linux kernel's
   layouts and calibration.
 - [atar-axis/xpadneo](https://github.com/atar-axis/xpadneo) - the Xbox
   Wireless Controller over Bluetooth.
-- [matlo/GIMX](https://github.com/matlo/GIMX) (GPL-3.0) - how a Linux
-  machine stands in for a DualShock 4 over Bluetooth: one report every 10 ms
-  and none in between, the pace Padpod keeps. Read, not copied.
+- [matlo/GIMX](https://github.com/matlo/GIMX) (GPL-3.0) - DualShock 4
+  emulation over Bluetooth. Read, not copied.
 - The Bluetooth HID profile specification - the service record, and the
   control and interrupt channels.
 - The SPRUCE theme of spruceOS - the colours the interface uses.
